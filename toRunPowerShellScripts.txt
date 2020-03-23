@@ -1,0 +1,7 @@
+https://stackoverflow.com/questions/4037939/powershell-says-execution-of-scripts-is-disabled-on-this-system
+
+1. Run powershell as administrator
+2. run 'Set-ExecutionPolicy RemoteSigned'
+
+To Reverse this change
+run 'Set-ExecutionPolicy Restricted'
