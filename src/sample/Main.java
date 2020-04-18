@@ -1,10 +1,8 @@
 package sample;
 
-
 import com.mongodb.*;
 import com.mongodb.client.*;
 import com.mongodb.client.MongoClient;
-
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -17,14 +15,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-
 import com.mongodb.BasicDBObject;
 import org.bson.Document;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.geoWithinCenter;
-
-//import java.awt.*;
 import java.awt.*;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,7 +38,8 @@ import java.util.prefs.*;
 
 public class Main extends Application {
 
-    // declare my variable at the top of my Java class
+    // Variable setup
+    Label currentDate = new Label();
     private Preferences prefs;
     String ID1 = "Vertical Photo Filter";
     String ID2 = "History";
@@ -54,12 +48,9 @@ public class Main extends Application {
     String ID5 = "Wildlife & Nature";
     String ID6 = "Science";
     String ID7 = "People";
-
-
-    //Button article = new Button("Empty Article URL");
     String articleURL;
     String imageURL;
-    String date = "None Selected";
+    String date = "No Wallpaper Selected";
 
     // MongoDB Connection settings (read-only)
     ConnectionString connString = new ConnectionString(
@@ -76,29 +67,10 @@ public class Main extends Application {
     MongoCollection<Document> myCollection = db.getCollection("Main");
 
 
-
-
-
-   // Timer timer = new Timer();
-/*
-    public void changeOnInterval(long interval) {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            int j = 0;
-            @Override
-            public void run() {
-                System.out.println("Running: " + j);
-                j++;
-                newWallpaper();
-            }
-
-        }, 0, interval);
-        timer.purge();
-    }*/
-
-    @Override
+    @Override // Start method of JavaFX Application
     public void start(Stage primaryStage) throws Exception{
 
+        // Set up user preferences for this class
         prefs = Preferences.userRoot().node(this.getClass().getName());
 
         // JavaFX Scene Setup
@@ -107,7 +79,7 @@ public class Main extends Application {
         Button newWallpaperButton = new Button("Random Wallpaper");
         Button article = new Button("Link to Article");
 
-        CheckBox cb1 = new CheckBox("Horizontal Photos Only");
+        CheckBox cb1 = new CheckBox("Landscape");
         CheckBox cb2 = new CheckBox("History");
         CheckBox cb3 = new CheckBox("Landscapes");
         CheckBox cb4 = new CheckBox("Architecture");
@@ -117,9 +89,105 @@ public class Main extends Application {
 
         Label checkboxLabel = new Label("User Preferences");
         Label intervalLabel = new Label("Change on Interval");
+        currentDate.setText(date);
+
         checkboxLabel.setStyle("-fx-font-weight: bold");
         intervalLabel.setStyle("-fx-font-weight: bold");
 
+        // Options for the Combo Box
+        String comboOptions[] =
+                { "None", "15 seconds", "1 Minute", "15 Minutes",
+                        "1 Hour", "1 Day" };
+
+        // Create a combo box
+        ComboBox combo_box =
+                new ComboBox(FXCollections
+                        .observableArrayList(comboOptions));
+
+        combo_box.setValue("None");
+
+        // Default User Settings - Checkboxs
+        cb1.setSelected(true);
+        cb2.setSelected(true);
+        cb3.setSelected(true);
+        cb4.setSelected(true);
+        cb5.setSelected(true);
+        cb6.setSelected(true);
+        cb7.setSelected(true);
+
+        // Default User Settings - Saved Preferences
+        prefs.putBoolean(ID1, true);
+        prefs.putBoolean(ID2, true);
+        prefs.putBoolean(ID3, true);
+        prefs.putBoolean(ID4, true);
+        prefs.putBoolean(ID5, true);
+        prefs.putBoolean(ID6, true);
+        prefs.putBoolean(ID7, true);
+
+        // JavaFX Scene Setup
+        GridPane root = new GridPane();
+        primaryStage.setScene(new Scene(root));
+
+        // Adding elements to the scene
+        root.add(checkboxLabel, 0,2);
+        root.add(cb1, 0,3);
+        root.add(cb2, 0,4);
+        root.add(cb3, 0,5);
+        root.add(cb4, 0,6);
+        root.add(cb5, 0,7);
+        root.add(cb6, 0,8);
+        root.add(cb7, 0,9);
+
+        root.add(currentDate,0,0);
+        root.add(newWallpaperButton, 0,1);
+        root.add(article, 1,1);
+        root.add(intervalLabel, 1,2);
+        root.add(combo_box, 1,3);
+
+        // Sets Grid Sizing
+        root.setPadding(new Insets(40));
+        root.setVgap(6);
+        root.setHgap(10);
+
+        // Sets min height of checkboxes to prevent other columns from affecting size
+        int checkboxMinHeight = 20;
+        cb1.setMinHeight(checkboxMinHeight);
+        cb2.setMinHeight(checkboxMinHeight);
+        cb3.setMinHeight(checkboxMinHeight);
+        cb4.setMinHeight(checkboxMinHeight);
+        cb5.setMinHeight(checkboxMinHeight);
+        cb6.setMinHeight(checkboxMinHeight);
+        cb7.setMinHeight(checkboxMinHeight);
+
+        // Adds Icon
+        primaryStage.getIcons().add(new Image("file:WikiWallpaperLogo.png"));
+
+        // Adds Logo to scene
+        FileInputStream imageStream = new FileInputStream("WikiWallpaperLogo.png");
+        Image image = new Image(imageStream);
+        ImageView image4 = new ImageView(image);
+        image4.setFitHeight(100);
+        image4.setFitWidth(100);
+        root.add(image4, 1, 10);
+
+        // 'New Wallpaper' Button actions
+        newWallpaperButton.setOnAction(e -> {
+            System.out.println("b1 has been pressed");
+            newWallpaper();
+        });
+
+        // 'Link to Article' Button actions
+        article.setOnAction(e -> {
+            try {
+                Desktop.getDesktop().browse(new URL(articleURL).toURI());
+            } catch (IOException es) {
+                es.printStackTrace();
+            } catch (URISyntaxException es) {
+                es.printStackTrace();
+            }
+        });
+
+        // Check Box Actions
         cb1.setOnAction(e ->{
             if(cb1.isSelected()) {
                 prefs.putBoolean(ID1, true);
@@ -177,112 +245,23 @@ public class Main extends Application {
             }
         });
 
-        cb1.setSelected(true);
-        cb2.setSelected(true);
-        cb3.setSelected(true);
-        cb4.setSelected(true);
-        cb5.setSelected(true);
-        cb6.setSelected(true);
-        cb7.setSelected(true);
-
-        prefs.putBoolean(ID1, true);
-        prefs.putBoolean(ID2, true);
-        prefs.putBoolean(ID3, true);
-        prefs.putBoolean(ID4, true);
-        prefs.putBoolean(ID5, true);
-        prefs.putBoolean(ID6, true);
-        prefs.putBoolean(ID7, true);
-
-
-        // Weekdays
-        String week_days[] =
-                { "None", "15 seconds", "1 Minute", "15 Minutes",
-                        "1 Hour", "1 Day" };
-
-        // Create a combo box
-        ComboBox combo_box =
-                new ComboBox(FXCollections
-                        .observableArrayList(week_days));
-
-        combo_box.setValue("None");
-
-        GridPane root = new GridPane();
-        primaryStage.setScene(new Scene(root));
-
-        root.add(checkboxLabel, 0,2);
-        root.add(cb1, 0,3);
-        root.add(cb2, 0,4);
-        root.add(cb3, 0,5);
-        root.add(cb4, 0,6);
-        root.add(cb5, 0,7);
-        root.add(cb6, 0,8);
-        root.add(cb7, 0,9);
-
-        int checkboxMinHeight = 20;
-        cb1.setMinHeight(checkboxMinHeight);
-        cb2.setMinHeight(checkboxMinHeight);
-        cb3.setMinHeight(checkboxMinHeight);
-        cb4.setMinHeight(checkboxMinHeight);
-        cb5.setMinHeight(checkboxMinHeight);
-        cb6.setMinHeight(checkboxMinHeight);
-        cb7.setMinHeight(checkboxMinHeight);
-
-        root.add(newWallpaperButton, 0,0);
-        root.add(article, 1,0);
-        root.add(intervalLabel, 1,2);
-        root.add(combo_box, 1,3);
-
-        root.setPadding(new Insets(40));
-        root.setVgap(6);
-        root.setHgap(10);
-
-        root.setMinSize(10,100);
-
-
-        primaryStage.getIcons().add(new Image("file:WikiWallpaperLogo.png"));
-
-        FileInputStream imageStream = new FileInputStream("WikiWallpaperLogo.png");
-        Image image = new Image(imageStream);
-        ImageView image4 = new ImageView(image);
-        image4.setFitHeight(100);
-        image4.setFitWidth(100);
-        root.add(image4, 1, 10);
-
-        // 'New Wallpaper' Button actions
-        newWallpaperButton.setOnAction(e -> {
-            System.out.println("b1 has been pressed");
-            newWallpaper();
-        });
-
-        // 'Link to Article' Button actions
-        article.setOnAction(e -> {
-            try {
-                Desktop.getDesktop().browse(new URL(articleURL).toURI());
-            } catch (IOException es) {
-                es.printStackTrace();
-            } catch (URISyntaxException es) {
-                es.printStackTrace();
-            }
-        });
-
+        // Timer for Interval wallpaper changes
         AtomicReference<Timer> timer = new AtomicReference<>(new Timer());
 
-
+        // Interval Changer Combo Box Action
         combo_box.setOnAction(e -> {
-
-
-
-            TimerTask test = new TimerTask() {
+            // Repeat Wallpaper Change on timer loop
+            TimerTask task = new TimerTask() {
                 int j = 0;
-
                 @Override
                 public void run() {
                     System.out.println("Running: " + j);
                     j++;
                     newWallpaper();
+                    currentDate.setText("POTD: "+date);
+                    System.out.println("DATE SHOULD BE: "+date);
                 }
             };
-
 
             switch(combo_box.getValue().toString()) {
                 case "None":
@@ -293,32 +272,32 @@ public class Main extends Application {
                     System.out.println("selected 15 seconds");
                     timer.get().cancel();
                     timer.set(new Timer());
-                    timer.get().schedule(test, 0, 15000);
+                    timer.get().schedule(task, 0, 15000);
                     break;
                 case "1 Minute":
                     System.out.println("selected 1 Minute");
                     timer.get().cancel();
                     timer.set(new Timer());
-                    timer.get().schedule(test, 0, 60000);
+                    timer.get().schedule(task, 0, 60000);
                     break;
                 case "15 Minutes":
                     System.out.println("selected 15 Minutes");
                     timer.get().cancel();
                     timer.set(new Timer());
-                    timer.get().schedule(test, 0, 900000);
+                    timer.get().schedule(task, 0, 900000);
                     break;
                 case "1 Hour":
                     System.out.println("selected 1 Hour");
                     timer.get().cancel();
                     timer.set(new Timer());
-                    timer.get().schedule(test, 0, 3600000);
+                    timer.get().schedule(task, 0, 3600000);
                     break;
                 case "1 Day":
                     System.out.println("selected 1 Day");
                     System.out.println("selected 1 Hour");
                     timer.get().cancel();
                     timer.set(new Timer());
-                    timer.get().schedule(test, 0, 86400000);
+                    timer.get().schedule(task, 0, 86400000);
                     break;
             }
 
@@ -334,6 +313,8 @@ public class Main extends Application {
     }
 
     public void newWallpaper(){
+
+
 
         // Builds the query to search the MongoDB collection
         BasicDBObject andQuery = new BasicDBObject();
@@ -405,6 +386,7 @@ public class Main extends Application {
         articleURL = currentEntry.get("Article").toString();
         imageURL = currentEntry.get("URL").toString();
         date = currentEntry.get("Date").toString();
+        currentDate.setText("POTD: "+date);
         System.out.println("Date: " + date);
         System.out.println("URL: " + imageURL);
         System.out.println("Article: " + articleURL);
