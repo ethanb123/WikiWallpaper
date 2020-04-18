@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
@@ -21,9 +22,11 @@ import com.mongodb.BasicDBObject;
 import org.bson.Document;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.geoWithinCenter;
 
 //import java.awt.*;
 import java.awt.*;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -56,6 +59,7 @@ public class Main extends Application {
     //Button article = new Button("Empty Article URL");
     String articleURL;
     String imageURL;
+    String date = "None Selected";
 
     // MongoDB Connection settings (read-only)
     ConnectionString connString = new ConnectionString(
@@ -112,6 +116,9 @@ public class Main extends Application {
         CheckBox cb7 = new CheckBox("People");
 
         Label checkboxLabel = new Label("User Preferences");
+        Label intervalLabel = new Label("Change on Interval");
+        checkboxLabel.setStyle("-fx-font-weight: bold");
+        intervalLabel.setStyle("-fx-font-weight: bold");
 
         cb1.setOnAction(e ->{
             if(cb1.isSelected()) {
@@ -197,17 +204,19 @@ public class Main extends Application {
                 new ComboBox(FXCollections
                         .observableArrayList(week_days));
 
+        combo_box.setValue("None");
+
         GridPane root = new GridPane();
         primaryStage.setScene(new Scene(root));
 
-        root.add(checkboxLabel, 0,0);
-        root.add(cb1, 0,1);
-        root.add(cb2, 0,2);
-        root.add(cb3, 0,3);
-        root.add(cb4, 0,4);
-        root.add(cb5, 0,5);
-        root.add(cb6, 0,6);
-        root.add(cb7, 0,7);
+        root.add(checkboxLabel, 0,2);
+        root.add(cb1, 0,3);
+        root.add(cb2, 0,4);
+        root.add(cb3, 0,5);
+        root.add(cb4, 0,6);
+        root.add(cb5, 0,7);
+        root.add(cb6, 0,8);
+        root.add(cb7, 0,9);
 
         int checkboxMinHeight = 20;
         cb1.setMinHeight(checkboxMinHeight);
@@ -218,9 +227,10 @@ public class Main extends Application {
         cb6.setMinHeight(checkboxMinHeight);
         cb7.setMinHeight(checkboxMinHeight);
 
-        root.add(newWallpaperButton, 1,0);
-        root.add(article, 1,1);
-        root.add(combo_box, 1,2);
+        root.add(newWallpaperButton, 0,0);
+        root.add(article, 1,0);
+        root.add(intervalLabel, 1,2);
+        root.add(combo_box, 1,3);
 
         root.setPadding(new Insets(40));
         root.setVgap(6);
@@ -230,6 +240,13 @@ public class Main extends Application {
 
 
         primaryStage.getIcons().add(new Image("file:WikiWallpaperLogo.png"));
+
+        FileInputStream imageStream = new FileInputStream("WikiWallpaperLogo.png");
+        Image image = new Image(imageStream);
+        ImageView image4 = new ImageView(image);
+        image4.setFitHeight(100);
+        image4.setFitWidth(100);
+        root.add(image4, 1, 10);
 
         // 'New Wallpaper' Button actions
         newWallpaperButton.setOnAction(e -> {
@@ -387,6 +404,8 @@ public class Main extends Application {
         // Pulls the Image and Article URL from the MongoDB Entry
         articleURL = currentEntry.get("Article").toString();
         imageURL = currentEntry.get("URL").toString();
+        date = currentEntry.get("Date").toString();
+        System.out.println("Date: " + date);
         System.out.println("URL: " + imageURL);
         System.out.println("Article: " + articleURL);
 
