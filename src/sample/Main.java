@@ -5,12 +5,17 @@ import com.mongodb.*;
 import com.mongodb.client.*;
 import com.mongodb.client.MongoClient;
 
+
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -18,8 +23,11 @@ import javafx.stage.Stage;
 import com.mongodb.BasicDBObject;
 import org.bson.Document;
 
+import javax.swing.*;
+
 import static com.mongodb.client.model.Filters.eq;
 
+//import java.awt.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,10 +40,26 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
+import javafx.scene.control.Label;
+import java.util.prefs.*;
+
 
 
 public class Main extends Application {
+
+    // declare my variable at the top of my Java class
+    private Preferences prefs;
+    String ID1 = "Vertical Photo Filter";
+    String ID2 = "History";
+    String ID3 = "Landscapes";
+    String ID4 = "Architecture";
+    String ID5 = "Wildlife & Nature";
+    String ID6 = "Science";
+    String ID7 = "People";
+
 
     //Button article = new Button("Empty Article URL");
     String articleURL;
@@ -56,26 +80,282 @@ public class Main extends Application {
     MongoCollection<Document> myCollection = db.getCollection("Main");
 
 
+
+
+
+   // Timer timer = new Timer();
+/*
+    public void changeOnInterval(long interval) {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            int j = 0;
+            @Override
+            public void run() {
+                System.out.println("Running: " + j);
+                j++;
+                newWallpaper();
+            }
+
+        }, 0, interval);
+        timer.purge();
+    }*/
+
+    @Override
+    public void start(Stage primaryStage) throws Exception{
+
+        prefs = Preferences.userRoot().node(this.getClass().getName());
+
+        // JavaFX Scene Setup
+        primaryStage.setTitle("WikiWallpaper");
+
+        Button newWallpaperButton = new Button("Random Wallpaper");
+        Button article = new Button("Link to Article");
+
+        CheckBox cb1 = new CheckBox("Horizontal Photos Only");
+        CheckBox cb2 = new CheckBox("History");
+        CheckBox cb3 = new CheckBox("Landscapes");
+        CheckBox cb4 = new CheckBox("Architecture");
+        CheckBox cb5 = new CheckBox("Wildlife & Nature");
+        CheckBox cb6 = new CheckBox("Science");
+        CheckBox cb7 = new CheckBox("People");
+
+        Label checkboxLabel = new Label("User Preferences");
+
+        cb1.setOnAction(e ->{
+            if(cb1.isSelected()) {
+                prefs.putBoolean(ID1, true);
+                //System.out.println(prefs.getBoolean(ID1, true));
+            }else{
+                prefs.putBoolean(ID1, false);
+            }
+        });
+
+        cb2.setOnAction(e ->{
+            if(cb2.isSelected()) {
+                prefs.putBoolean(ID2, true);
+            }else{
+                prefs.putBoolean(ID2, false);
+            }
+        });
+
+        cb3.setOnAction(e ->{
+            if(cb3.isSelected()) {
+                prefs.putBoolean(ID3, true);
+            }else{
+                prefs.putBoolean(ID3, false);
+            }
+        });
+
+        cb4.setOnAction(e ->{
+            if(cb4.isSelected()) {
+                prefs.putBoolean(ID4, true);
+            }else{
+                prefs.putBoolean(ID4, false);
+            }
+        });
+
+        cb5.setOnAction(e ->{
+            if(cb5.isSelected()) {
+                prefs.putBoolean(ID5, true);
+            }else{
+                prefs.putBoolean(ID5, false);
+            }
+        });
+
+        cb6.setOnAction(e ->{
+            if(cb6.isSelected()) {
+                prefs.putBoolean(ID6, true);
+            }else{
+                prefs.putBoolean(ID6, false);
+            }
+        });
+
+        cb7.setOnAction(e ->{
+            if(cb7.isSelected()) {
+                prefs.putBoolean(ID7, true);
+            }else{
+                prefs.putBoolean(ID7, false);
+            }
+        });
+
+        cb1.setSelected(true);
+        cb2.setSelected(true);
+        cb3.setSelected(true);
+        cb4.setSelected(true);
+        cb5.setSelected(true);
+        cb6.setSelected(true);
+        cb7.setSelected(true);
+
+        prefs.putBoolean(ID1, true);
+        prefs.putBoolean(ID2, true);
+        prefs.putBoolean(ID3, true);
+        prefs.putBoolean(ID4, true);
+        prefs.putBoolean(ID5, true);
+        prefs.putBoolean(ID6, true);
+        prefs.putBoolean(ID7, true);
+
+
+        // Weekdays
+        String week_days[] =
+                { "None", "15 seconds", "1 Minute", "15 Minutes",
+                        "1 Hour", "1 Day" };
+
+        // Create a combo box
+        ComboBox combo_box =
+                new ComboBox(FXCollections
+                        .observableArrayList(week_days));
+
+        GridPane root = new GridPane();
+        primaryStage.setScene(new Scene(root));
+
+        root.add(checkboxLabel, 0,0);
+        root.add(cb1, 0,1);
+        root.add(cb2, 0,2);
+        root.add(cb3, 0,3);
+        root.add(cb4, 0,4);
+        root.add(cb5, 0,5);
+        root.add(cb6, 0,6);
+        root.add(cb7, 0,7);
+
+        root.add(newWallpaperButton, 1,0);
+        root.add(article, 1,1);
+        root.add(combo_box, 1,2);
+
+        root.setPadding(new Insets(40));
+        root.setVgap(6);
+        root.setHgap(10);
+
+        primaryStage.getIcons().add(new Image("file:WikiWallpaperLogo.png"));
+
+        // 'New Wallpaper' Button actions
+        newWallpaperButton.setOnAction(e -> {
+            System.out.println("b1 has been pressed");
+            newWallpaper();
+        });
+
+        // 'Link to Article' Button actions
+        article.setOnAction(e -> {
+            try {
+                Desktop.getDesktop().browse(new URL(articleURL).toURI());
+            } catch (IOException es) {
+                es.printStackTrace();
+            } catch (URISyntaxException es) {
+                es.printStackTrace();
+            }
+        });
+
+        Timer timer = new Timer();
+
+        combo_box.setOnAction(e -> {
+
+
+            TimerTask test = new TimerTask() {
+                int j = 0;
+                @Override
+                public void run() {
+                    System.out.println("Running: " + j);
+                    j++;
+                    newWallpaper();
+                }
+            };
+
+            switch(combo_box.getValue().toString()) {
+                case "None":
+                    System.out.println("selected None");
+                    timer.purge();
+                    timer.schedule(test, 0, 10000);
+                    break;
+                case "15 seconds":
+                    System.out.println("selected 15 seconds");
+                    try {
+                        timer.schedule(test, 0, 5000);
+                    }catch (Exception esf) {
+                        System.out.println(esf);
+                    }
+
+                    break;
+                case "1 Minute":
+                    System.out.println("selected 1 Minute");
+                    break;
+                case "15 Minutes":
+                    System.out.println("selected 15 Minutes");
+                    break;
+                case "1 Hour":
+                    System.out.println("selected 1 Hour");
+                    break;
+                case "1 Day":
+                    System.out.println("selected 1 Day");
+                    break;
+            }
+
+
+        });
+
+        primaryStage.show();
+    }
+
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
     public void newWallpaper(){
 
         // Builds the query to search the MongoDB collection
         BasicDBObject andQuery = new BasicDBObject();
         List<BasicDBObject> vert = new ArrayList<BasicDBObject>();
         List<BasicDBObject> tags = new ArrayList<BasicDBObject>();
-        vert.add(new BasicDBObject("Vertical", "0"));
-        tags.add(new BasicDBObject("History", "1"));
-        tags.add(new BasicDBObject("Landscapes", "1"));
-        tags.add(new BasicDBObject("Architecture", "1"));
-        tags.add(new BasicDBObject("Wildlife/nature", "1"));
-        tags.add(new BasicDBObject("Science", "1"));
-        tags.add(new BasicDBObject("People", "1"));
 
+        //Prints out all user preferences
+        System.out.println("ID1: "+prefs.getBoolean(ID1, true));
+        System.out.println("ID2: "+prefs.getBoolean(ID2, true));
+        System.out.println("ID3: "+prefs.getBoolean(ID3, true));
+        System.out.println("ID4: "+prefs.getBoolean(ID4, true));
+        System.out.println("ID5: "+prefs.getBoolean(ID5, true));
+        System.out.println("ID6: "+prefs.getBoolean(ID6, true));
+        System.out.println("ID7: "+prefs.getBoolean(ID7, true));
+
+        // Sets vertical database object for building the query
+        if(prefs.getBoolean(ID1, true)){
+            vert.add(new BasicDBObject("Vertical", "0"));
+        }else{
+            vert.add(new BasicDBObject("Vertical", "1"));
+        }
+
+        // Sets the image tags based off user preferences for building the query
+        if(prefs.getBoolean(ID2, true)){
+            tags.add(new BasicDBObject("History", "1"));
+        }
+
+        if(prefs.getBoolean(ID3, true)){
+            tags.add(new BasicDBObject("Landscapes", "1"));
+        }
+
+        if(prefs.getBoolean(ID4, true)){
+            tags.add(new BasicDBObject("Architecture", "1"));
+        }
+
+        if(prefs.getBoolean(ID5, true)){
+            tags.add(new BasicDBObject("Wildlife/nature", "1"));
+        }
+
+        if(prefs.getBoolean(ID6, true)){
+            tags.add(new BasicDBObject("Science", "1"));
+        }
+
+        if(prefs.getBoolean(ID7, true)){
+            tags.add(new BasicDBObject("People", "1"));
+        }
+
+        // Logic for building the query
         andQuery.put("$and", vert);
         andQuery.put("$or", tags);
 
+        System.out.println(andQuery.toString());
+
         // Calculates a random index from the queried results
-        int randomIndex = (int) Math.round(myCollection.count(andQuery)*Math.random());
-        int total = (int) myCollection.count(andQuery);
+        int randomIndex = (int) Math.round(myCollection.countDocuments(andQuery)*Math.random());
+        int total = (int) myCollection.countDocuments(andQuery);
         System.out.println("Total: " + total + " randomIndex: " + randomIndex);
 
         // Iterates through queried results to find the POTD at the random index
@@ -113,46 +393,5 @@ public class Main extends Application {
             ex.printStackTrace();
         }
 
-    }
-    @Override
-    public void start(Stage primaryStage) throws Exception{
-
-        // JavaFX Scene Setup
-        primaryStage.setTitle("WikiWallpaper");
-
-        Button newWallpaperButton = new Button("Random Wallpaper");
-        Button article = new Button("Link to Article");
-
-        GridPane root = new GridPane();
-        primaryStage.setScene(new Scene(root, 300, 275));
-        root.add(newWallpaperButton, 0,0);
-        root.add(article, 0,1);
-        root.setPadding(new Insets(40));
-        root.setVgap(10);
-        root.setHgap(10);
-
-        // 'New Wallpaper' Button actions
-        newWallpaperButton.setOnAction(e -> {
-            System.out.println("b1 has been pressed");
-            newWallpaper();
-        });
-
-        // 'Link to Article' Button actions
-        article.setOnAction(e -> {
-            try {
-                Desktop.getDesktop().browse(new URL(articleURL).toURI());
-            } catch (IOException es) {
-                es.printStackTrace();
-            } catch (URISyntaxException es) {
-                es.printStackTrace();
-            }
-        });
-
-        primaryStage.show();
-    }
-
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
