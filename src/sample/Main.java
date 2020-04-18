@@ -8,22 +8,17 @@ import com.mongodb.client.MongoClient;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import com.mongodb.BasicDBObject;
 import org.bson.Document;
-
-import javax.swing.*;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -31,18 +26,15 @@ import static com.mongodb.client.model.Filters.eq;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicReference;
+
 import javafx.scene.control.Label;
 import java.util.prefs.*;
 
@@ -217,6 +209,15 @@ public class Main extends Application {
         root.add(cb6, 0,6);
         root.add(cb7, 0,7);
 
+        int checkboxMinHeight = 20;
+        cb1.setMinHeight(checkboxMinHeight);
+        cb2.setMinHeight(checkboxMinHeight);
+        cb3.setMinHeight(checkboxMinHeight);
+        cb4.setMinHeight(checkboxMinHeight);
+        cb5.setMinHeight(checkboxMinHeight);
+        cb6.setMinHeight(checkboxMinHeight);
+        cb7.setMinHeight(checkboxMinHeight);
+
         root.add(newWallpaperButton, 1,0);
         root.add(article, 1,1);
         root.add(combo_box, 1,2);
@@ -224,6 +225,9 @@ public class Main extends Application {
         root.setPadding(new Insets(40));
         root.setVgap(6);
         root.setHgap(10);
+
+        root.setMinSize(10,100);
+
 
         primaryStage.getIcons().add(new Image("file:WikiWallpaperLogo.png"));
 
@@ -244,13 +248,16 @@ public class Main extends Application {
             }
         });
 
-        Timer timer = new Timer();
+        AtomicReference<Timer> timer = new AtomicReference<>(new Timer());
+
 
         combo_box.setOnAction(e -> {
 
 
+
             TimerTask test = new TimerTask() {
                 int j = 0;
+
                 @Override
                 public void run() {
                     System.out.println("Running: " + j);
@@ -259,32 +266,42 @@ public class Main extends Application {
                 }
             };
 
+
             switch(combo_box.getValue().toString()) {
                 case "None":
                     System.out.println("selected None");
-                    timer.purge();
-                    timer.schedule(test, 0, 10000);
+                    timer.get().cancel();
                     break;
                 case "15 seconds":
                     System.out.println("selected 15 seconds");
-                    try {
-                        timer.schedule(test, 0, 5000);
-                    }catch (Exception esf) {
-                        System.out.println(esf);
-                    }
-
+                    timer.get().cancel();
+                    timer.set(new Timer());
+                    timer.get().schedule(test, 0, 15000);
                     break;
                 case "1 Minute":
                     System.out.println("selected 1 Minute");
+                    timer.get().cancel();
+                    timer.set(new Timer());
+                    timer.get().schedule(test, 0, 60000);
                     break;
                 case "15 Minutes":
                     System.out.println("selected 15 Minutes");
+                    timer.get().cancel();
+                    timer.set(new Timer());
+                    timer.get().schedule(test, 0, 900000);
                     break;
                 case "1 Hour":
                     System.out.println("selected 1 Hour");
+                    timer.get().cancel();
+                    timer.set(new Timer());
+                    timer.get().schedule(test, 0, 3600000);
                     break;
                 case "1 Day":
                     System.out.println("selected 1 Day");
+                    System.out.println("selected 1 Hour");
+                    timer.get().cancel();
+                    timer.set(new Timer());
+                    timer.get().schedule(test, 0, 86400000);
                     break;
             }
 
