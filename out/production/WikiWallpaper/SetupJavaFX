@@ -1,0 +1,24 @@
+To get our project running on any Windows computer:
+
+1. install Jetbrains Intellij IDEA Ultimate - https://www.jetbrains.com/idea/download/#section=windows
+2. Log into Jetbrains account created through GitHub Student
+3. Open a new project as JavaFX using SDK 11
+4. Download JavaFX SDK and unzip - https://gluonhq.com/products/javafx/
+5. Open the Project Structure in Intellij (ctrl+alt+shift+S)
+6. Go to Global Libraries and click the plus button.
+7. Add the path to the SDK and import classes
+
+
+Using GitHub:
+
+1. Download GitHub Desktop and install - https://desktop.github.com/
+2. Sign into your Github account
+3. clone ethanb123/WikiWallpaper
+4. Install Atom text editor - https://atom.io/
+5. click 'open in Atom', or 'show in explorer' from GitHub Desktop, to view/modify the local copy
+
+To save changes to GitHub (Commit to master)
+
+1. Github desktop will show all of your changes on the left
+2. Provide a Summary and Descritpion of your changes, them commit to master
+3. The Commit is still local, click 'Push Origin' to commit the change to GitHub servers

@@ -5,6 +5,8 @@ import com.mongodb.client.*;
 import com.mongodb.client.MongoClient;
 
 import javafx.application.Application;
+import javafx.beans.property.Property;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -13,12 +15,14 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import com.mongodb.BasicDBObject;
 import org.bson.Document;
 
 import java.awt.*;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.scene.control.Label;
 import java.util.prefs.*;
+import javafx.application.Platform;
 
 
 
@@ -51,6 +56,7 @@ public class Main extends Application {
     String articleURL;
     String imageURL;
     String date = "No Wallpaper Selected";
+    StringProperty dateTest;
 
     // MongoDB Connection settings (read-only)
     ConnectionString connString = new ConnectionString(
@@ -89,8 +95,9 @@ public class Main extends Application {
 
         Label checkboxLabel = new Label("User Preferences");
         Label intervalLabel = new Label("Change on Interval");
-        currentDate.setText(date);
 
+
+        // Makes the labels bold
         checkboxLabel.setStyle("-fx-font-weight: bold");
         intervalLabel.setStyle("-fx-font-weight: bold");
 
@@ -99,14 +106,13 @@ public class Main extends Application {
                 { "None", "15 seconds", "1 Minute", "15 Minutes",
                         "1 Hour", "1 Day" };
 
-        // Create a combo box
+        // Creates the combo box
         ComboBox combo_box =
                 new ComboBox(FXCollections
                         .observableArrayList(comboOptions));
-
         combo_box.setValue("None");
 
-        // Default User Settings - Checkboxs
+        // Default User Settings - Check boxs
         cb1.setSelected(true);
         cb2.setSelected(true);
         cb3.setSelected(true);
@@ -128,23 +134,35 @@ public class Main extends Application {
         GridPane root = new GridPane();
         primaryStage.setScene(new Scene(root));
 
+        // JavaFX Column constraints to stop the WikiWallpaper logo from effecting other UI elements
+        ColumnConstraints col1Constraints = new ColumnConstraints();
+        col1Constraints.setPercentWidth(50);
+        ColumnConstraints col2Constraints = new ColumnConstraints();
+        col2Constraints.setPercentWidth(50);
+        root.getColumnConstraints().addAll(col1Constraints, col2Constraints);
+
+        // JavaFX Window Size
+        primaryStage.setWidth(380);
+        primaryStage.setHeight(500);
+
         // Adding elements to the scene
-        root.add(checkboxLabel, 0,2);
-        root.add(cb1, 0,3);
-        root.add(cb2, 0,4);
-        root.add(cb3, 0,5);
-        root.add(cb4, 0,6);
-        root.add(cb5, 0,7);
-        root.add(cb6, 0,8);
-        root.add(cb7, 0,9);
+        root.add(currentDate,0,1);
+        root.add(newWallpaperButton, 0,2);
 
-        root.add(currentDate,0,0);
-        root.add(newWallpaperButton, 0,1);
-        root.add(article, 1,1);
-        root.add(intervalLabel, 1,2);
-        root.add(combo_box, 1,3);
+        root.add(checkboxLabel, 0,3);
+        root.add(cb1, 0,4);
+        root.add(cb2, 0,5);
+        root.add(cb3, 0,6);
+        root.add(cb4, 0,7);
+        root.add(cb5, 0,8);
+        root.add(cb6, 0,9);
+        root.add(cb7, 0,10);
 
-        // Sets Grid Sizing
+        root.add(article, 1,2);
+        root.add(intervalLabel, 1,3);
+        root.add(combo_box, 1,4);
+
+        // Sets Grid Sizing and Padding
         root.setPadding(new Insets(40));
         root.setVgap(6);
         root.setHgap(10);
@@ -160,20 +178,21 @@ public class Main extends Application {
         cb7.setMinHeight(checkboxMinHeight);
 
         // Adds Icon
-        primaryStage.getIcons().add(new Image("file:WikiWallpaperLogo.png"));
+        primaryStage.getIcons().add(new Image("file:WikiWallpaperLogo4.png"));
 
         // Adds Logo to scene
-        FileInputStream imageStream = new FileInputStream("WikiWallpaperLogo.png");
+        FileInputStream imageStream = new FileInputStream("WikiWallpaperLogo6.png");
         Image image = new Image(imageStream);
         ImageView image4 = new ImageView(image);
-        image4.setFitHeight(100);
-        image4.setFitWidth(100);
-        root.add(image4, 1, 10);
+        image4.setFitHeight(120);
+        image4.setFitWidth(300);
+        root.add(image4, 0, 0);
 
         // 'New Wallpaper' Button actions
         newWallpaperButton.setOnAction(e -> {
             System.out.println("b1 has been pressed");
             newWallpaper();
+            Platform.runLater(() -> currentDate.setText("POTD: "+date));
         });
 
         // 'Link to Article' Button actions
@@ -189,77 +208,46 @@ public class Main extends Application {
 
         // Check Box Actions
         cb1.setOnAction(e ->{
-            if(cb1.isSelected()) {
-                prefs.putBoolean(ID1, true);
-                //System.out.println(prefs.getBoolean(ID1, true));
-            }else{
-                prefs.putBoolean(ID1, false);
-            }
-        });
-
+            if(cb1.isSelected()) { prefs.putBoolean(ID1, true);
+            }else{ prefs.putBoolean(ID1, false);
+            }});
         cb2.setOnAction(e ->{
-            if(cb2.isSelected()) {
-                prefs.putBoolean(ID2, true);
-            }else{
-                prefs.putBoolean(ID2, false);
-            }
-        });
-
+            if(cb2.isSelected()) { prefs.putBoolean(ID2, true);
+            }else{ prefs.putBoolean(ID2, false);
+            }});
         cb3.setOnAction(e ->{
-            if(cb3.isSelected()) {
-                prefs.putBoolean(ID3, true);
-            }else{
-                prefs.putBoolean(ID3, false);
-            }
-        });
-
+            if(cb3.isSelected()) { prefs.putBoolean(ID3, true);
+            }else{ prefs.putBoolean(ID3, false);
+            }});
         cb4.setOnAction(e ->{
-            if(cb4.isSelected()) {
-                prefs.putBoolean(ID4, true);
-            }else{
-                prefs.putBoolean(ID4, false);
-            }
-        });
-
+            if(cb4.isSelected()) { prefs.putBoolean(ID4, true);
+            }else{ prefs.putBoolean(ID4, false);
+            }});
         cb5.setOnAction(e ->{
-            if(cb5.isSelected()) {
-                prefs.putBoolean(ID5, true);
-            }else{
-                prefs.putBoolean(ID5, false);
-            }
-        });
-
+            if(cb5.isSelected()) { prefs.putBoolean(ID5, true);
+            }else{ prefs.putBoolean(ID5, false);
+            }});
         cb6.setOnAction(e ->{
-            if(cb6.isSelected()) {
-                prefs.putBoolean(ID6, true);
-            }else{
-                prefs.putBoolean(ID6, false);
-            }
-        });
-
+            if(cb6.isSelected()) { prefs.putBoolean(ID6, true);
+            }else{ prefs.putBoolean(ID6, false);
+            }});
         cb7.setOnAction(e ->{
-            if(cb7.isSelected()) {
-                prefs.putBoolean(ID7, true);
-            }else{
-                prefs.putBoolean(ID7, false);
-            }
-        });
+            if(cb7.isSelected()) { prefs.putBoolean(ID7, true);
+            }else{ prefs.putBoolean(ID7, false);
+            }});
 
         // Timer for Interval wallpaper changes
         AtomicReference<Timer> timer = new AtomicReference<>(new Timer());
 
         // Interval Changer Combo Box Action
         combo_box.setOnAction(e -> {
-            // Repeat Wallpaper Change on timer loop
+
+            // Repeat Wallpaper Change in the timer loop, update the label each time
             TimerTask task = new TimerTask() {
-                int j = 0;
                 @Override
                 public void run() {
-                    System.out.println("Running: " + j);
-                    j++;
                     newWallpaper();
-                    currentDate.setText("POTD: "+date);
-                    System.out.println("DATE SHOULD BE: "+date);
+                    Platform.runLater(() -> currentDate.setText("POTD: "+date));
                 }
             };
 
@@ -294,16 +282,13 @@ public class Main extends Application {
                     break;
                 case "1 Day":
                     System.out.println("selected 1 Day");
-                    System.out.println("selected 1 Hour");
                     timer.get().cancel();
                     timer.set(new Timer());
                     timer.get().schedule(task, 0, 86400000);
                     break;
             }
 
-
         });
-
         primaryStage.show();
     }
 
@@ -314,14 +299,12 @@ public class Main extends Application {
 
     public void newWallpaper(){
 
-
-
-        // Builds the query to search the MongoDB collection
+        // Arraylists of User settings build the query to search the MongoDB collection
         BasicDBObject andQuery = new BasicDBObject();
         List<BasicDBObject> vert = new ArrayList<BasicDBObject>();
         List<BasicDBObject> tags = new ArrayList<BasicDBObject>();
 
-        //Prints out all user preferences
+        // Prints out all user preferences
         System.out.println("ID1: "+prefs.getBoolean(ID1, true));
         System.out.println("ID2: "+prefs.getBoolean(ID2, true));
         System.out.println("ID3: "+prefs.getBoolean(ID3, true));
@@ -340,38 +323,27 @@ public class Main extends Application {
         // Sets the image tags based off user preferences for building the query
         if(prefs.getBoolean(ID2, true)){
             tags.add(new BasicDBObject("History", "1"));
-        }
-
-        if(prefs.getBoolean(ID3, true)){
+        }if(prefs.getBoolean(ID3, true)){
             tags.add(new BasicDBObject("Landscapes", "1"));
-        }
-
-        if(prefs.getBoolean(ID4, true)){
+        }if(prefs.getBoolean(ID4, true)){
             tags.add(new BasicDBObject("Architecture", "1"));
-        }
-
-        if(prefs.getBoolean(ID5, true)){
+        }if(prefs.getBoolean(ID5, true)){
             tags.add(new BasicDBObject("Wildlife/nature", "1"));
-        }
-
-        if(prefs.getBoolean(ID6, true)){
+        }if(prefs.getBoolean(ID6, true)){
             tags.add(new BasicDBObject("Science", "1"));
-        }
-
-        if(prefs.getBoolean(ID7, true)){
+        }if(prefs.getBoolean(ID7, true)){
             tags.add(new BasicDBObject("People", "1"));
         }
 
-        // Logic for building the query
+        // Logic for building the database query
         andQuery.put("$and", vert);
         andQuery.put("$or", tags);
-
         System.out.println(andQuery.toString());
 
-        // Calculates a random index from the queried results
+        // Calculates a random index from the query results
         int randomIndex = (int) Math.round(myCollection.countDocuments(andQuery)*Math.random());
         int total = (int) myCollection.countDocuments(andQuery);
-        System.out.println("Total: " + total + " randomIndex: " + randomIndex);
+        System.out.println("Total: " + total + " RandomIndex: " + randomIndex);
 
         // Iterates through queried results to find the POTD at the random index
         MongoCursor<Document> currentPOTD = myCollection.find(andQuery).iterator();
@@ -386,11 +358,10 @@ public class Main extends Application {
         articleURL = currentEntry.get("Article").toString();
         imageURL = currentEntry.get("URL").toString();
         date = currentEntry.get("Date").toString();
-        currentDate.setText("POTD: "+date);
+
         System.out.println("Date: " + date);
         System.out.println("URL: " + imageURL);
         System.out.println("Article: " + articleURL);
-
 
         // Downloads the Image from the URL stored in the current database entry
         try(InputStream in = new URL(imageURL).openStream()){
@@ -401,8 +372,9 @@ public class Main extends Application {
         }
 
         // calls the Wallpaper changer PowerShell script with the downloaded POTD image
-        String path2 = Paths.get("downloadImage.jpg").toString();
-        String command = "powershell.exe .\\Set-Wallpaper.ps1 -Image C:\\Users\\ethan\\Documents\\GitHub\\WikiWallpaper\\downloadImage.jpg";
+        File downloadedImageFile = new File("downloadImage.jpg");
+        String pathOfImageFile = downloadedImageFile.getAbsolutePath();
+        String command = "powershell.exe .\\Set-Wallpaper.ps1 -Image " + pathOfImageFile;
         Process powerShellProcess = null;
         try {
             powerShellProcess = Runtime.getRuntime().exec(command);
@@ -410,6 +382,5 @@ public class Main extends Application {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
     }
 }
