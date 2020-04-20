@@ -4,8 +4,6 @@ param ([string]$Image="")
 
 Function Set-WallPaper($Image) {
 
-#Example function usage: Set-WallPaper -Image "C:\Wallpaper\Default.jpg"
-
 Add-Type -TypeDefinition @" 
 using System; 
 using System.Runtime.InteropServices;
@@ -18,8 +16,7 @@ public class Params
                                                    String lpvParam, 
                                                    Int32 fuWinIni);
 }
-"@ 
-
+"@
 $SPI_SETDESKWALLPAPER = 0x0014
 $UpdateIniFile = 0x01
 $SendChangeEvent = 0x02
@@ -28,5 +25,4 @@ $fWinIni = $UpdateIniFile -bor $SendChangeEvent
 
 $ret = [Params]::SystemParametersInfo($SPI_SETDESKWALLPAPER, 0, $Image, $fWinIni)
 }
-
 Set-WallPaper -Image $Image

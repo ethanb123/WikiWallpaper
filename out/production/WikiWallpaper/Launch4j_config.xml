@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>C:\Users\ethan\Documents\GitHub\WikiWallpaper\out\artifacts\WikiWallpaper_jar\WikiWallpaper.jar</jar>
+  <outfile>C:\Users\ethan\Documents\GitHub\WikiWallpaper\WikiWallpaper.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine>java --module-path C:\Users\ethan\Documents\javafx-sdk-11.0.2\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics</cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>true</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>C:\Users\ethan\Documents\GitHub\WikiWallpaper\WikiWallpaperLogo4.ico</icon>
+  <classPath>
+    <mainClass>sample.Main</mainClass>
+  </classPath>
+  <jre>
+    <path>C:\Program Files\Java\jdk-11.0.7</path>
+    <bundledJre64Bit>false</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <minVersion>11</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+    <opt>--module-path C:\javafx-sdk-11.0.2\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics</opt>
+  </jre>
+</launch4jConfig>

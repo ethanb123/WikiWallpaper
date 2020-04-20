@@ -1,0 +1,13 @@
+To Install WikiWallpaper and Dependencies:
+
+1. Open the Windows Start Menu and search for 'PowerShell'
+2. Right-click 'PowerShell' and click 'Run As Administrator'
+3. Run 'Set-ExecutionPolicy RemoteSigned'
+4. Type in 'A' and click enter
+5. Download Java SE 11.0.7 https://drive.google.com/file/d/1-xR_M8OcUUYKyQBkJKfE-lxFI1M20MDy/view?usp=sharing
+6. Download JavaFX11 and unzip to the root of C (C:\javafx-sdk-11.0.2) https://drive.google.com/file/d/18_8McD19Ku_RwZWvu14CZH66U8YTBkvr/view?usp=sharing
+7. Download WikiWallpaper and unzip to the desktop https://drive.google.com/file/d/1KGmaAzU6pg_O1ynOsG147fnawiPKDzIp/view?usp=sharing
+8. Double-click WikiWallpaper.exe to run
+
+To Reverse the PowerShell Policy change
+run 'Set-ExecutionPolicy Restricted' in PowerShell as Administrator

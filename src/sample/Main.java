@@ -8,6 +8,8 @@ import javafx.application.Application;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -15,13 +17,16 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import com.mongodb.BasicDBObject;
+import javafx.stage.WindowEvent;
 import org.bson.Document;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,6 +34,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
@@ -39,6 +45,7 @@ import javafx.scene.control.Label;
 import java.util.prefs.*;
 import javafx.application.Platform;
 
+import javax.imageio.ImageIO;
 
 
 public class Main extends Application {
@@ -96,20 +103,15 @@ public class Main extends Application {
         Label checkboxLabel = new Label("User Preferences");
         Label intervalLabel = new Label("Change on Interval");
 
-
         // Makes the labels bold
         checkboxLabel.setStyle("-fx-font-weight: bold");
         intervalLabel.setStyle("-fx-font-weight: bold");
 
         // Options for the Combo Box
-        String comboOptions[] =
-                { "None", "15 seconds", "1 Minute", "15 Minutes",
-                        "1 Hour", "1 Day" };
+        String comboOptions[] = { "None", "15 seconds", "1 Minute", "15 Minutes", "1 Hour", "1 Day" };
 
         // Creates the combo box
-        ComboBox combo_box =
-                new ComboBox(FXCollections
-                        .observableArrayList(comboOptions));
+        ComboBox combo_box = new ComboBox(FXCollections.observableArrayList(comboOptions));
         combo_box.setValue("None");
 
         // Default User Settings - Check boxs
@@ -136,13 +138,13 @@ public class Main extends Application {
 
         // JavaFX Column constraints to stop the WikiWallpaper logo from effecting other UI elements
         ColumnConstraints col1Constraints = new ColumnConstraints();
-        col1Constraints.setPercentWidth(50);
         ColumnConstraints col2Constraints = new ColumnConstraints();
+        col1Constraints.setPercentWidth(50);
         col2Constraints.setPercentWidth(50);
         root.getColumnConstraints().addAll(col1Constraints, col2Constraints);
 
         // JavaFX Window Size
-        primaryStage.setWidth(380);
+        primaryStage.setWidth(370);
         primaryStage.setHeight(500);
 
         // Adding elements to the scene
@@ -163,7 +165,7 @@ public class Main extends Application {
         root.add(combo_box, 1,4);
 
         // Sets Grid Sizing and Padding
-        root.setPadding(new Insets(40));
+        root.setPadding(new Insets(30));
         root.setVgap(6);
         root.setHgap(10);
 
@@ -178,15 +180,19 @@ public class Main extends Application {
         cb7.setMinHeight(checkboxMinHeight);
 
         // Adds Icon
-        primaryStage.getIcons().add(new Image("file:WikiWallpaperLogo4.png"));
+        primaryStage.getIcons().add(new Image("https://i.imgur.com/Mmi62YC.png"));
+        ImageView bigIcon = new ImageView("https://i.imgur.com/9AP5mo8.png");
+        bigIcon.setFitHeight(75);
+        bigIcon.setFitWidth(250);
+        root.add(bigIcon, 0, 0);
 
-        // Adds Logo to scene
-        FileInputStream imageStream = new FileInputStream("WikiWallpaperLogo6.png");
-        Image image = new Image(imageStream);
-        ImageView image4 = new ImageView(image);
-        image4.setFitHeight(120);
-        image4.setFitWidth(300);
-        root.add(image4, 0, 0);
+
+        //File powershellScriptFile = new File("Set-WallPaper.ps1");
+        //String pathOfScript = powershellScriptFile.getAbsolutePath();
+        //System.out.println("!!SCRIPT!! "+pathOfScript);
+
+
+
 
         // 'New Wallpaper' Button actions
         newWallpaperButton.setOnAction(e -> {
@@ -289,6 +295,13 @@ public class Main extends Application {
             }
 
         });
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent t) {
+                Platform.exit();
+                System.exit(0);
+            }
+        });
         primaryStage.show();
     }
 
@@ -373,10 +386,37 @@ public class Main extends Application {
 
         // calls the Wallpaper changer PowerShell script with the downloaded POTD image
         File downloadedImageFile = new File("downloadImage.jpg");
+        //*File powershellScriptFile = new File("Set-WallPaper.ps1");
         String pathOfImageFile = downloadedImageFile.getAbsolutePath();
-        String command = "powershell.exe .\\Set-Wallpaper.ps1 -Image " + pathOfImageFile;
+        //*String pathOfScript = powershellScriptFile.getAbsolutePath();
+        //System.out.println("path of image: "+pathOfImageFile);
+        //System.out.println("path of script: "+pathOfScript);
+
+        URL is = this.getClass().getClassLoader().getResource("Set-WallPaper.ps1");
+        //String scriptPath = is.getPath().;
+        //System.out.println("!!ScriptPath!! "+scriptPath.substring(6));
+        //String scriptPath = "C:\Users\ethan\Documents\GitHub\WikiWallpaper\out\artifacts\WikiWallpaper_jar\WikiWallpaper.jar!\Set-WallPaper.ps1";
+        try(InputStream in = new URL(is.toString()).openStream()){
+            Files.deleteIfExists(Paths.get("Set-Wallpaper.ps1"));
+            Files.copy(in, Paths.get("Set-Wallpaper.ps1"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        /*if(Files.exists(Paths.get("/javafx-sdk-11.0.2"))){
+            System.out.println("JAVAFX EXISTS");
+        }else{
+            System.out.println("does not exist");
+        }*/
+
+        //Path ScrPath = Paths.("Set-Wallpaper.ps1");
+        File powershellScriptFile = new File("Set-WallPaper.ps1");
+        System.out.println("PATH IS: "+powershellScriptFile.getAbsolutePath());
+
+        String command = "powershell.exe "+powershellScriptFile.getAbsolutePath()+" -Image " + pathOfImageFile;
+        System.out.println("PowerShell Command: "+command);
         Process powerShellProcess = null;
         try {
+            System.out.println("Trying Powershell command, wish me luck");
             powerShellProcess = Runtime.getRuntime().exec(command);
             powerShellProcess.getOutputStream().close();
         } catch (IOException ex) {
